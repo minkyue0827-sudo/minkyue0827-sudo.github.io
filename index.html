@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>파워빌딩 루틴</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0a0a;--surface:#141414;--surface2:#1c1c1c;--surface3:#242424;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#f0f0f0;--muted:#888;--dim:#555;
+  --accent:#e8ff47;--accent-dim:rgba(232,255,71,0.1);
+  --accent2:#ff6b35;--red:#ff4444;--blue:#4a8fff;--green:#44cc88;--amber:#ffaa33;
+  --r:12px;--r-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{background:var(--bg);}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);
+  min-height:100dvh;padding-bottom:calc(72px + env(safe-area-inset-bottom,16px));overflow-x:hidden;}
+
+/* NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;
+  background:rgba(12,12,12,0.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-top:1px solid var(--border2);display:grid;grid-template-columns:repeat(4,1fr);
+  padding-bottom:env(safe-area-inset-bottom,0px);z-index:100;}
+.nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:10px 4px 8px;cursor:pointer;border:none;background:none;
+  color:var(--dim);font-family:'Noto Sans KR',sans-serif;transition:color .15s;}
+.nav-btn.active{color:var(--accent);}
+.nav-icon{font-size:19px;line-height:1;}
+.nav-label{font-size:10px;font-weight:500;}
+
+/* PAGES */
+.page{display:none;}.page.active{display:block;}
+
+/* HERO */
+.hero{padding:52px 20px 22px;padding-top:calc(52px + env(safe-area-inset-top,0px));position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-80px;left:-60px;width:360px;height:360px;
+  background:radial-gradient(circle,rgba(232,255,71,0.055) 0%,transparent 65%);pointer-events:none;}
+.hero-eyebrow{font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:3px;color:var(--accent);margin-bottom:6px;}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:46px;line-height:.95;margin-bottom:14px;}
+.hero-title span{color:var(--accent);}
+
+/* SECTION */
+.section{padding:0 16px;margin-bottom:20px;}
+.section-label{font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:2.5px;color:var(--muted);margin-bottom:10px;padding-left:2px;}
+
+/* DAY TABS */
+.day-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:0 16px;margin-bottom:14px;}
+.day-btn{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:9px 4px;cursor:pointer;text-align:center;transition:all .15s;}
+.day-btn.active{background:var(--surface2);border-color:var(--accent);}
+.day-dow{font-size:10px;color:var(--dim);margin-bottom:3px;}
+.day-name{font-size:11px;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:5px;}
+.day-tag{display:inline-block;font-size:9px;font-weight:700;padding:2px 6px;border-radius:20px;}
+.tag-push{background:rgba(255,107,53,.15);color:var(--accent2);}
+.tag-pull{background:rgba(74,143,255,.15);color:var(--blue);}
+.tag-legs{background:rgba(68,204,136,.15);color:var(--green);}
+.tag-shoulder{background:rgba(255,170,51,.15);color:var(--amber);}
+
+/* DAY CONTENT */
+.day-content{display:none;padding:0 16px;}.day-content.active{display:block;}
+
+/* BLOCK */
+.block{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden;}
+.block-header{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--border);}
+.badge{font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px;letter-spacing:.5px;white-space:nowrap;}
+.badge-s{background:rgba(255,68,68,.15);color:var(--red);}
+.badge-b{background:rgba(74,143,255,.15);color:var(--blue);}
+.badge-pre{background:rgba(68,204,136,.15);color:var(--green);}
+.badge-opt{background:rgba(255,255,255,.07);color:var(--muted);}
+.block-title{font-size:13px;font-weight:700;color:var(--text);flex:1;}
+.block-time{font-size:10px;color:var(--dim);white-space:nowrap;}
+
+/* EX ITEM */
+.ex-item{border-bottom:1px solid var(--border);padding:11px 14px;}
+.ex-item:last-child{border-bottom:none;}
+.ex-top{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;margin-bottom:8px;}
+.ex-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px;}
+.ex-note{font-size:11px;color:var(--muted);line-height:1.5;}
+.ex-target{text-align:right;}
+.target-weight{font-family:'Bebas Neue',sans-serif;font-size:19px;color:var(--accent);line-height:1;}
+.target-rep{font-size:10px;color:var(--dim);margin-top:2px;}
+
+/* LOG SETS */
+.log-sets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+.log-set{display:flex;flex-direction:column;gap:3px;flex:1;min-width:58px;max-width:86px;}
+.set-label{font-size:9px;color:var(--dim);text-align:center;letter-spacing:.3px;}
+.set-inputs{display:grid;grid-template-columns:1fr 1fr;gap:3px;}
+.set-input{background:var(--surface2);border:1px solid var(--border);border-radius:6px;
+  padding:7px 3px;font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--text);
+  text-align:center;width:100%;-webkit-appearance:none;transition:border-color .15s;}
+.set-input:focus{outline:none;border-color:var(--accent);}
+.set-input.filled{border-color:rgba(232,255,71,.3);background:rgba(232,255,71,.04);}
+.set-input::placeholder{color:var(--dim);font-size:12px;}
+.set-unit{font-size:8px;color:var(--dim);text-align:center;letter-spacing:.5px;}
+.log-add-btn{background:var(--surface2);border:1px dashed var(--border2);border-radius:6px;
+  padding:7px 10px;font-size:16px;color:var(--dim);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;align-self:flex-end;height:36px;}
+
+/* COMPLETE BTN */
+.complete-btn{width:100%;padding:13px;background:var(--accent-dim);
+  border:1px solid rgba(232,255,71,.2);border-radius:var(--r-sm);
+  color:var(--accent);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;
+  cursor:pointer;letter-spacing:.3px;transition:background .15s;}
+.complete-btn:active{background:rgba(232,255,71,.18);}
+.complete-btn.done{background:rgba(68,204,136,.1);border-color:rgba(68,204,136,.3);color:var(--green);}
+
+/* TIP */
+.tip{background:var(--surface2);border-radius:var(--r);padding:11px 14px;
+  margin-top:4px;font-size:12px;color:var(--muted);line-height:1.65;
+  border-left:2px solid var(--accent);margin-bottom:10px;}
+.tip strong{color:var(--accent);font-weight:700;}
+
+/* NOTICE */
+.notice-warn{background:rgba(255,170,51,.08);border:1px solid rgba(255,170,51,.25);
+  border-radius:var(--r);padding:10px 14px;font-size:12px;color:var(--amber);margin-bottom:10px;line-height:1.6;}
+
+/* TIME BAR */
+.time-bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:10px 14px;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;}
+.time-total{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--accent);letter-spacing:1px;}
+.time-seg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);}
+.time-dot{width:6px;height:6px;border-radius:50%;}
+.dot-s{background:var(--red);}.dot-b{background:var(--blue);}
+
+/* PAGE HEADER */
+.page-header{padding:52px 20px 20px;padding-top:calc(52px + env(safe-area-inset-top,0px));}
+.page-header-title{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:1px;}
+.page-header-title span{color:var(--accent);}
+
+/* ORM PAGE */
+.orm-page-grid{display:flex;flex-direction:column;gap:8px;}
+.orm-row-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:14px 16px;display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;cursor:pointer;}
+.orm-row-card:active{opacity:.8;}
+.orm-row-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.orm-row-session{font-size:11px;color:var(--muted);}
+.orm-big-val{font-family:'Bebas Neue',sans-serif;font-size:30px;color:var(--accent);letter-spacing:.5px;text-align:right;}
+.orm-big-sub{font-size:10px;color:var(--dim);text-align:right;margin-top:1px;}
+
+/* HISTORY */
+.history-empty{text-align:center;padding:60px 20px;color:var(--dim);font-size:13px;line-height:1.7;}
+.history-day{padding:0 16px;margin-bottom:20px;}
+.history-date{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:var(--muted);margin-bottom:8px;}
+.history-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.history-row{display:flex;justify-content:space-between;align-items:baseline;
+  padding:9px 14px;border-bottom:1px solid var(--border);font-size:12px;}
+.history-row:last-child{border-bottom:none;}
+.history-ex{color:var(--text);font-weight:500;}
+.history-sets{color:var(--muted);font-size:11px;text-align:right;max-width:55%;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);z-index:200;display:none;align-items:flex-end;
+  justify-content:center;padding-bottom:env(safe-area-inset-bottom,0);}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r) var(--r) 0 0;
+  padding:22px 20px 32px;width:100%;max-width:480px;animation:slideUp .25s cubic-bezier(.16,1,.3,1);}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;margin-bottom:6px;}
+.modal-sub{font-size:12px;color:var(--muted);margin-bottom:20px;line-height:1.55;}
+.input-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.input-group label{display:block;font-size:11px;color:var(--muted);margin-bottom:6px;}
+.input-group input,.modal-direct input{width:100%;background:var(--surface3);border:1px solid var(--border2);
+  border-radius:var(--r-sm);padding:12px 14px;font-size:20px;font-family:'Bebas Neue',sans-serif;
+  letter-spacing:1px;color:var(--text);text-align:center;-webkit-appearance:none;}
+.input-group input:focus,.modal-direct input:focus{outline:none;border-color:var(--accent);}
+.calc-result{background:var(--accent-dim);border:1px solid rgba(232,255,71,.2);border-radius:var(--r-sm);
+  padding:12px 14px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;}
+.calc-label{font-size:12px;color:var(--muted);}
+.calc-val{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent);letter-spacing:1px;}
+.modal-direct label{display:block;font-size:11px;color:var(--muted);margin-bottom:6px;}
+.modal-direct input{margin-bottom:16px;}
+.divider-text{text-align:center;font-size:11px;color:var(--dim);margin:0 0 14px;position:relative;}
+.divider-text::before,.divider-text::after{content:'';position:absolute;top:50%;width:38%;height:1px;background:var(--border);}
+.divider-text::before{left:0;}.divider-text::after{right:0;}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.btn{padding:14px;border-radius:var(--r-sm);font-family:'Noto Sans KR',sans-serif;
+  font-size:13px;font-weight:700;cursor:pointer;border:none;transition:opacity .15s;}
+.btn:active{opacity:.75;}
+.btn-cancel{background:var(--surface3);color:var(--muted);border:1px solid var(--border);}
+.btn-save{background:var(--accent);color:#000;}
+
+/* HDIVIDER */
+.hdivider{height:1px;background:var(--border);margin:20px 16px;}
+
+/* ANIM */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.day-content.active>*{animation:fadeUp .2s ease both;}
+.day-content.active>*:nth-child(1){animation-delay:.02s}
+.day-content.active>*:nth-child(2){animation-delay:.05s}
+.day-content.active>*:nth-child(3){animation-delay:.08s}
+.day-content.active>*:nth-child(4){animation-delay:.11s}
+.day-content.active>*:nth-child(5){animation-delay:.14s}
+.day-content.active>*:nth-child(6){animation-delay:.17s}
+.day-content.active>*:nth-child(7){animation-delay:.20s}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ PAGE: 루틴 ══════════════ -->
+<div class="page active" id="page-routine">
+<div class="hero">
+  <div class="hero-eyebrow">POWERBUILDING · 주 4일</div>
+  <div class="hero-title">오늘의<br><span>루틴</span></div>
+</div>
+
+<div class="day-tabs">
+  <button class="day-btn active" onclick="showDay(0)">
+    <div class="day-dow">월</div><div class="day-name">가슴<br>삼두</div>
+    <span class="day-tag tag-push">PUSH</span>
+  </button>
+  <button class="day-btn" onclick="showDay(1)">
+    <div class="day-dow">화</div><div class="day-name">등<br>이두</div>
+    <span class="day-tag tag-pull">PULL</span>
+  </button>
+  <button class="day-btn" onclick="showDay(2)">
+    <div class="day-dow">목</div><div class="day-name">어깨<br>승모</div>
+    <span class="day-tag tag-shoulder">SHLDR</span>
+  </button>
+  <button class="day-btn" onclick="showDay(3)">
+    <div class="day-dow">금</div><div class="day-name">하체<br>후면사슬</div>
+    <span class="day-tag tag-legs">LEGS</span>
+  </button>
+</div>
+
+<!-- MON -->
+<div class="day-content active" id="day0">
+  <div class="time-bar"><span class="time-total">총 약 80분</span>
+    <span class="time-seg"><span class="time-dot dot-s"></span>스트렝스 20분</span>
+    <span class="time-seg"><span class="time-dot dot-b"></span>가슴 BB 35분</span>
+    <span class="time-seg"><span class="time-dot dot-b"></span>삼두 20분</span>
+  </div>
+
+  <div class="block">
+    <div class="block-header"><span class="badge badge-s">STRENGTH</span><span class="block-title">플랫 벤치프레스</span><span class="block-time">~20분</span></div>
+    <div class="ex-item">
+      <div class="ex-top"><div><div class="ex-name">웜업</div><div class="ex-note">60kg×5 → 75kg×3 / 힘 빼지 말 것</div></div>
+      <div class="ex-target"><div class="target-weight">60/75</div><div class="target-rep">kg 웜업</div></div></div>
+    </div>
+    <div class="ex-item" data-exid="bench-str">
+      <div class="ex-top"><div><div class="ex-name">본세트</div>
+        <div class="ex-note">호흡 참고 폭발적으로 / 자극·고립 신경 끄기<br>권장: <span class="dyn dyn-bench-str">계산 중...</span></div></div>
+        <div class="ex-target"><div class="target-weight dyn dyn-bench-kg">—</div><div class="target-rep">kg × 6~8회</div></div>
+      </div>
+      <div class="log-sets" id="log-bench-str"></div>
+      <button class="complete-btn" onclick="completeSets(this,'bench-str','bench')">세트 완료 기록</button>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="block-header"><span class="badge badge-b">BODYBUILDING</span><span class="block-title">가슴 보디빌딩</span><span class="block-time">~35분</span></div>
+    <div class="ex-item" data-exid="bench-db">
+      <div class="ex-top"><div><div class="ex-name">인클라인 덤벨 프레스</div><div class="ex-note">set1: 6~8RM 고립 / set2: 8~12RM + 드랍 3회</div></div>
+      <div class="ex-target"><div class="target-weight">30~36</div><div class="target-rep">kg × 2세트</div></div></div>
+      <div class="log-sets" id="log-bench-db"></div>
+      <button class="complete-btn" onclick="completeSets(this,'bench-db',null)">세트 완료 기록</button>
+    </div>
+    <div class="ex-item" data-exid="bench-mach">
+      <div class="ex-top"><div><div class="ex-name">머신 프레스 (핀머신)</div><div class="ex-note">4~6RM → 드랍 5회 / 후반 자극·고립</div></div>
+      <div class="ex-target"><div class="target-weight">4~6RM</div><div class="target-rep">+드랍5</div></div></div>
+      <div class="log-sets" id="log-bench-mach"></div>
+      <button class="complete-btn" onclick="completeSets(this,'bench-mach',null)">세트 완료 기록</button>
+    </div>
+    <div class="ex-item" data-exid="bench-fly">
+      <div class="ex-top"><div><div class="ex-name">케이블 플라이 or 펙덱</div><div class="ex-note">10~15RM / 스트레치 강조 / 무조건 마지막</div></div>
+      <div class="ex-target"><div class="target-weight">가볍게</div><div class="target-rep">2~3세트</div></div></div>
+      <div class="log-sets" id="log-bench-fly"></div>
+      <button class="complete-btn" onclick="completeSets(this,'bench-fly',null)">세트 완료 기록</button>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="block-header"><span class="badge badge-b">BODYBUILDING</span><span class="block-title">삼두 보디빌딩</span><span class="block-time">~20분</span></div>
+    <div class="ex-item" data-exid="tri-ext">
+      <div class="ex-top"><div><div class="ex-name">덤벨 오버헤드 익스텐션</div><div class="ex-note">관절 웜업 필수 / 8~12RM / 쉬는 시간 충분히</div></div>
+      <div class="ex-target"><div class="target-weight">8~12RM</div><div class="target-rep">3세트</div></div></div>
+      <div class="log-sets" id="log-tri-ext"></div>
+      <button class="complete-btn" onclick="completeSets(this,'tri-ext',null)">세트 완료 기록</button>
+    </div>
+    <div class="ex-item" data-exid="tri-pd">
+      <div class="ex-top"><div><div class="ex-name">케이블 푸쉬다운</div><div class="ex-note">마지막 세트만 드랍 3회</div></div>
+      <div class="ex-target"><div class="target-weight">10~12RM</div><div class="target-rep">3세트</div></div></div>
+      <div class="log-sets" id="log-tri-pd"></div>
+      <button class="complete-btn" onclick="completeSets(this,'tri-pd',null)">세트 완료 기록</button>
+    </div>
+  </div>
+  <div class="tip"><strong>증량 사이클:</strong> 85kg에서 10~12회 달성 시 87.5kg으로 올리고 다시 6~8회부터. 1RM 탭에서 업데이트하면 권장 중량 자동 반영.</div>
+</div>
+
+<!-- TUE -->
+<div class="day-content" id="day1">
+  <div class="time-bar"><span class="time-total">총 약 85분</span>
+    <span class="time-seg"><span class="time-dot dot-s"></span>스트렝스</span>
+    <span class="time-seg"><span class="time-dot dot-b"></span>등 BB</span>
+    <span class="time-seg"><span class="time-dot dot-b"></span>이두</span>
+  </div>
+  <div class="block">
+    <div class="block-header"><span class="badge badge-pre">선행</span><span class="block-title">덤벨 풀오버 (광배 활성화)</span></div>
+    <div class="ex-item"><div class="ex-top"><div><div class="ex-name">인클라인 벤치에서</div><div class="ex-note">광배 길게 늘리는 것만 집중 / 1세트</div></div>
+    <div class="ex-target"><div class="target-weight">가볍게</div><div class="target-rep">15~20회</div></div></div></div>
+  </div>
+  <div class="block">
+    <div class="block-header"><span class="badge badge-s">STRENGTH</span><span class="block-title">바벨 로우</span><span class="block-time">~20분</span></div>
+    <div class="ex-item" data-exid="row-str">
+      <div class="ex-top"><div><div class="ex-name">본세트</div>
+        <div class="ex-note">빠르고 강하게 / 반동 허용<br>권장: <span class="dyn dyn-row-str">계산 중...</span></div></div>
+        <div class="ex-target"><div class="target-weight dyn dyn-row-kg">—</div><div class="target-rep">kg × 6~8회</div></div>
+      </div>
+      <div class="log-sets" id="log-row-str"></div>
+      <button class="complete-btn" onclick="completeSets(this,'row-str','row')">세트 완료 기록</button>
+    </div>
+  </div>
+  <div class="block">
+    <div class="block-header"><span class="badge badge-b">BODYBUILDING</span><span class="block-title">등 보디빌딩 (광배 너비)</span><span class="block-time">~35분</span></div>
+    <div class="ex-item" data-exid="lat-bb">
+      <div class="ex-top"><div><div class="ex-name">랫풀다운</div><div class="ex-note">8~12RM × 2세트 → 드랍 1회 → 15~20RM 마무리</div></div>
+      <div class="ex-target"><div class="target-weight">8→20RM</div><div class="target-rep">4세트</div></div></div>
+      <div class="log-sets" id="log-lat-bb"></div>
+      <button class="complete-btn" onclick="completeSets(this,'lat-bb',null)">세트 완료 기록</button>
+    </div>
+    <div class="ex-item" data-exid="row-1arm">
+      <div class="ex-top"><div><div class="ex-name">원암 덤벨 로우</div><div class="ex-note">8~10RM 반동 → 드랍 4회 (드랍부터 고립)</div></div>
+      <div class="ex-target"><div class="target-weight">36~40</div><div class="target-rep">kg × 2세트</div></div></div>
+      <div class="log-sets" id="log-row-1arm"></div>
+      <button class="complete-btn" onclick="completeSets(this,'row-1arm',null)">세트 완료 기록</button>
+    </div>
+    <div class="ex-item" data-exid="pullover-bb">
+      <div class="ex-top"><div><div class="ex-name">덤벨 풀오버</div><div class="ex-note">12~20RM / 광배 스트레치만</div></div>
+      <div class="ex-target"><div class="target-weight">12~20RM</div><div class="target-rep">2세트</div></div></div>
+      <div class="log-sets" id="log-pullover-bb"></div>
+      <button class="complete-btn" onclick="completeSets(this,'pullover-bb',null)">세트 완료 기록</button>
+    </div>
+    <div class="ex-item" data-exid="rear-delt">
+      <div class="ex-top"><div><div class="ex-name">리버스 펙덱 (후면 어깨)</div><div class="ex-note">20~30RM 고반복 → 드랍 3회</div></div>
+      <div class="ex-target"><div class="target-weight">가볍게</div><div class="target-rep">3세트</div></div></div>
+      <div class="log-sets" id="log-rear-delt"></div>
+      <button class="complete-btn" onclick="completeSets(this,'rear-delt',null)">세트 완료 기록</button>
+    </div>
+  </div>
+  <div class="block">
+    <div class="block-header"><span class="badge badge-b">BODYBUILDING</span><span class="block-title">이두 보디빌딩</span><span class="block-time">~25분</span></div>
+    <div class="ex-item" data-exid="bi-curl">
+      <div class="ex-top"><div><div class="ex-name">덤벨 컬 (원암씩)</div><div class="ex-note">8~10RM → 드랍 3회 × 2세트 / 강제반복 활용</div></div>
+      <div class="ex-target"><div class="target-weight">16~20</div><div class="target-rep">kg × 3세트</div></div></div>
+      <div class="log-sets" id="log-bi-curl"></div>
+      <button class="complete-btn" onclick="completeSets(this,'bi-curl',null)">세트 완료 기록</button>
+    </div>
+    <div class="ex-item" data-exid="hammer">
+      <div class="ex-top"><div><div class="ex-name">케이블 해머컬</div><div class="ex-note">마지막 세트 드랍 3회</div></div>
+      <div class="ex-target"><div class="target-weight">10~12RM</div><div class="target-rep">3세트</div></div></div>
+      <div class="log-sets" id="log-hammer"></div>
+      <button class="complete-btn" onclick="completeSets(this,'hammer',null)">세트 완료 기록</button>
+    </div>
+  </div>
+  <div class="tip"><strong>화요일 핵심:</strong> 광배 너비 집중일. 바벨 로우가 이날의 핵심 기록 종목.</div>
+</div>
+
+<!-- THU -->
+<div class="day-content" id="day2">
+  <div class="time-bar"><span class="time-total">총 약 80분</span>
+    <span class="time-seg"><span class="time-dot dot-s"></span>스트렝스</span>
+    <span class="time-seg"><span class="time-dot dot-b"></span>어깨 BB</span>
+    <span class="time-seg"><span class="time-dot dot-b"></span>승모 (선택)</span>
+  </div>
+  <div class="block">
+    <div class="block-header"><span class="badge badge-s">STRENGTH</span><span class="block-title">바벨 OHP (스미스 추천)</span><span class="block-time">~20분</span></div>
+    <div class="ex-item"><div class="ex-top"><div><div class="ex-name">웜업</div><div class="ex-note">30kg×8 → 40kg×5 / 어깨 관절 충분히</div></div>
+    <div class="ex-target"><div class="target-weight">30/40</div><div class="target-rep">kg 웜업</div></div></div></div>
+    <div class="ex-item" data-exid="ohp-str">
+      <div class="ex-top"><div><div class="ex-name">본세트</div>
+        <div class="ex-note">폭발적으로 밀기 / 벤치 방식 동일<br>권장: <span class="dyn dyn-ohp-str">계산 중...</span></div></div>
+        <div class="ex-target"><div class="target-weight dyn dyn-ohp-kg">—</div><div class="target-rep">kg × 6~8회</div></div>
+      </div>
+      <div class="log-sets" id="log-ohp-str"></div>
+      <button class="complete-btn" onclick="completeSets(this,'ohp-str','ohp')">세트 완료 기록</button>
+    </div>
+  </div>
+  <div class="block">
+    <div class="block-header"><span class="badge badge-b">BODYBUILDING</span><span class="block-title">어깨 보디빌딩</span><span class="block-time">~45분</span></div>
+    <div class="ex-item" data-exid="ohp-bb">
+      <div class="ex-top"><div><div class="ex-name">바벨 OHP (BB 세션)</div>
+        <div class="ex-note">8~10RM 네거티브 → 1RM 30%(<span class="dyn dyn-ohp-30">—</span>kg)로 3분 지속</div></div>
+        <div class="ex-target"><div class="target-weight dyn dyn-ohp-30b">—</div><div class="target-rep">kg 3분</div></div>
+      </div>
+      <div class="log-sets" id="log-ohp-bb"></div>
+      <button class="complete-btn" onclick="completeSets(this,'ohp-bb',null)">세트 완료 기록</button>
+    </div>
+    <div class="ex-item" data-exid="db-press">
+      <div class="ex-top"><div><div class="ex-name">덤벨 숄더프레스 (시티드)</div><div class="ex-note">10~15RM → 드랍 3회</div></div>
+      <div class="ex-target"><div class="target-weight">18~22</div><div class="target-rep">kg × 2세트</div></div></div>
+      <div class="log-sets" id="log-db-press"></div>
+      <button class="complete-btn" onclick="completeSets(this,'db-press',null)">세트 완료 기록</button>
+    </div>
+    <div class="ex-item" data-exid="lateral">
+      <div class="ex-top"><div><div class="ex-name">사이드 레터럴 레이즈</div><div class="ex-note">50회→30회→10~12회 역피라미드 / 마지막 드랍 3회</div></div>
+      <div class="ex-target"><div class="target-weight">6→12</div><div class="target-rep">kg × 4세트</div></div></div>
+      <div class="log-sets" id="log-lateral"></div>
+      <button class="complete-btn" onclick="completeSets(this,'lateral',null)">세트 완료 기록</button>
+    </div>
+    <div class="ex-item" data-exid="mach-press">
+      <div class="ex-top"><div><div class="ex-name">머신 숄더프레스</div><div class="ex-note">6~8RM → 드랍 5회 마무리</div></div>
+      <div class="ex-target"><div class="target-weight">6~8RM</div><div class="target-rep">+드랍5</div></div></div>
+      <div class="log-sets" id="log-mach-press"></div>
+      <button class="complete-btn" onclick="completeSets(this,'mach-press',null)">세트 완료 기록</button>
+    </div>
+  </div>
+  <div class="block">
+    <div class="block-header"><span class="badge badge-opt">선택</span><span class="block-title">승모 (시간 여유 시)</span></div>
+    <div class="ex-item" data-exid="shrug">
+      <div class="ex-top"><div><div class="ex-name">덤벨 슈러그</div><div class="ex-note">20RM→6~8RM→10~15RM / 하견인 비추</div></div>
+      <div class="ex-target"><div class="target-weight">RM 기준</div><div class="target-rep">3세트</div></div></div>
+      <div class="log-sets" id="log-shrug"></div>
+      <button class="complete-btn" onclick="completeSets(this,'shrug',null)">세트 완료 기록</button>
+    </div>
+  </div>
+  <div class="tip"><strong>OHP 증량:</strong> 10~12회 달성 시 +2.5kg. 벤치보다 증량 폭 작게. 어깨 관절 타협 없이.</div>
+</div>
+
+<!-- FRI -->
+<div class="day-content" id="day3">
+  <div class="time-bar"><span class="time-total">총 약 90분</span>
+    <span class="time-seg"><span class="time-dot dot-s"></span>스트렝스</span>
+    <span class="time-seg"><span class="time-dot dot-b"></span>앞다리</span>
+    <span class="time-seg"><span class="time-dot dot-b"></span>후면사슬</span>
+  </div>
+  <div class="notice-warn">슬개건 복귀 단계 — 프론트 스쿼트 제외 / 레그 익스텐션 저중량 고반복 / 박스 스쿼트 우선</div>
+  <div class="block">
+    <div class="block-header"><span class="badge badge-pre">선행</span><span class="block-title">고관절·슬관절 활성화</span></div>
+    <div class="ex-item"><div class="ex-top"><div><div class="ex-name">힙 어브덕션 + 레그컬</div><div class="ex-note">가볍게 각 1세트</div></div>
+    <div class="ex-target"><div class="target-weight">가볍게</div><div class="target-rep">각 1세트</div></div></div></div>
+  </div>
+  <div class="block">
+    <div class="block-header"><span class="badge badge-s">STRENGTH</span><span class="block-title">백스쿼트 → 데드리프트 (순서 엄수)</span><span class="block-time">~35분</span></div>
+    <div class="ex-item"><div class="ex-top"><div><div class="ex-name">스쿼트 웜업</div><div class="ex-note">60kg×5 → 75kg×3</div></div>
+    <div class="ex-target"><div class="target-weight">60/75</div><div class="target-rep">kg 웜업</div></div></div></div>
+    <div class="ex-item" data-exid="squat-str">
+      <div class="ex-top"><div><div class="ex-name">스쿼트 본세트 (반복수 누적)</div>
+        <div class="ex-note">복통 호흡 / 무릎 신호 오면 즉시 중단<br>권장: <span class="dyn dyn-squat-str">계산 중...</span></div></div>
+        <div class="ex-target"><div class="target-weight dyn dyn-squat-kg">—</div><div class="target-rep">kg × 8~10회</div></div>
+      </div>
+      <div class="log-sets" id="log-squat-str"></div>
+      <button class="complete-btn" onclick="completeSets(this,'squat-str','squat')">세트 완료 기록</button>
+    </div>
+    <div class="ex-item" data-exid="dead-1rm">
+      <div class="ex-top"><div><div class="ex-name">데드리프트 — 1RM 갱신</div>
+        <div class="ex-note">전주 +5kg 도전 / 복통 호흡<br>권장: <span class="dyn dyn-dead-1rm">계산 중...</span></div></div>
+        <div class="ex-target"><div class="target-weight dyn dyn-dead-kg">—</div><div class="target-rep">kg × 1RM</div></div>
+      </div>
+      <div class="log-sets" id="log-dead-1rm"></div>
+      <button class="complete-btn" onclick="completeSets(this,'dead-1rm','dead')">세트 완료 기록</button>
+    </div>
+    <div class="ex-item" data-exid="dead-rep">
+      <div class="ex-top"><div><div class="ex-name">데드리프트 — 반복수 세트</div>
+        <div class="ex-note">5~6RM / 터치앤고 시 호흡 참기<br>권장: <span class="dyn dyn-dead-rep">계산 중...</span></div></div>
+        <div class="ex-target"><div class="target-weight dyn dyn-dead-rep-kg">—</div><div class="target-rep">kg × 5~6회</div></div>
+      </div>
+      <div class="log-sets" id="log-dead-rep"></div>
+      <button class="complete-btn" onclick="completeSets(this,'dead-rep',null)">세트 완료 기록</button>
+    </div>
+  </div>
+  <div class="block">
+    <div class="block-header"><span class="badge badge-b">BODYBUILDING</span><span class="block-title">앞다리 (슬개건 보호)</span><span class="block-time">~25분</span></div>
+    <div class="ex-item" data-exid="leg-ext">
+      <div class="ex-top"><div><div class="ex-name">레그 익스텐션</div><div class="ex-note">저중량 고반복 / 20~25RM 3세트 / 고중량 금지</div></div>
+      <div class="ex-target"><div class="target-weight">가볍게</div><div class="target-rep">20~25회 ×3</div></div></div>
+      <div class="log-sets" id="log-leg-ext"></div>
+      <button class="complete-btn" onclick="completeSets(this,'leg-ext',null)">세트 완료 기록</button>
+    </div>
+    <div class="ex-item" data-exid="legpress">
+      <div class="ex-top"><div><div class="ex-name">레그프레스 (발 높게 짚기)</div><div class="ex-note">슬개건 압박 감소 / 12~15RM</div></div>
+      <div class="ex-target"><div class="target-weight">12~15RM</div><div class="target-rep">3세트</div></div></div>
+      <div class="log-sets" id="log-legpress"></div>
+      <button class="complete-btn" onclick="completeSets(this,'legpress',null)">세트 완료 기록</button>
+    </div>
+    <div class="ex-item" data-exid="box-squat">
+      <div class="ex-top"><div><div class="ex-name">박스 스쿼트</div><div class="ex-note">무릎 전방 이동 자연 제한 / 12~15RM</div></div>
+      <div class="ex-target"><div class="target-weight">가볍게</div><div class="target-rep">2세트</div></div></div>
+      <div class="log-sets" id="log-box-squat"></div>
+      <button class="complete-btn" onclick="completeSets(this,'box-squat',null)">세트 완료 기록</button>
+    </div>
+    <div class="ex-item" data-exid="wall-sit">
+      <div class="ex-top"><div><div class="ex-name">월 싯 or 스페인 스쿼트</div><div class="ex-note">슬개건 부하 내성 / 30~45초 × 2세트</div></div>
+      <div class="ex-target"><div class="target-weight">맨몸</div><div class="target-rep">30~45초 ×2</div></div></div>
+      <div class="log-sets" id="log-wall-sit"></div>
+      <button class="complete-btn" onclick="completeSets(this,'wall-sit',null)">세트 완료 기록</button>
+    </div>
+  </div>
+  <div class="block">
+    <div class="block-header"><span class="badge badge-b">BODYBUILDING</span><span class="block-title">후면사슬</span><span class="block-time">~25분</span></div>
+    <div class="ex-item" data-exid="leg-curl">
+      <div class="ex-top"><div><div class="ex-name">레그컬</div><div class="ex-note">10~15RM / 드랍 2회 / 네거티브</div></div>
+      <div class="ex-target"><div class="target-weight">10~15RM</div><div class="target-rep">3세트</div></div></div>
+      <div class="log-sets" id="log-leg-curl"></div>
+      <button class="complete-btn" onclick="completeSets(this,'leg-curl',null)">세트 완료 기록</button>
+    </div>
+    <div class="ex-item" data-exid="hip-thrust">
+      <div class="ex-top"><div><div class="ex-name">힙쓰러스트 (스미스)</div><div class="ex-note">10RM 고중량 → 15RM 2세트</div></div>
+      <div class="ex-target"><div class="target-weight">10~15RM</div><div class="target-rep">3세트</div></div></div>
+      <div class="log-sets" id="log-hip-thrust"></div>
+      <button class="complete-btn" onclick="completeSets(this,'hip-thrust',null)">세트 완료 기록</button>
+    </div>
+    <div class="ex-item" data-exid="back-ext">
+      <div class="ex-top"><div><div class="ex-name">백 익스텐션</div><div class="ex-note">맨몸 30회 → 가중 10RM → 맨몸 드랍</div></div>
+      <div class="ex-target"><div class="target-weight">맨몸/가중</div><div class="target-rep">3세트</div></div></div>
+      <div class="log-sets" id="log-back-ext"></div>
+      <button class="complete-btn" onclick="completeSets(this,'back-ext',null)">세트 완료 기록</button>
+    </div>
+  </div>
+  <div class="tip"><strong>스쿼트 로드맵:</strong> 87~90kg 안정 → 95 → 100 → 110 → PR 135kg 재달성 (3~4개월)</div>
+</div>
+</div>
+
+<!-- ══════════════ PAGE: 1RM ══════════════ -->
+<div class="page" id="page-orm">
+  <div class="page-header"><div class="page-header-title">나의 <span>1RM</span></div></div>
+  <div class="section">
+    <div class="section-label">탭해서 수정 — 세션 권장 중량 자동 계산</div>
+    <div class="orm-page-grid" id="orm-list"></div>
+  </div>
+  <div class="hdivider"></div>
+  <div class="section">
+    <div class="section-label">단기 목표 (3~4개월)</div>
+    <div class="block">
+      <div style="padding:4px 0;">
+        <div style="display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:var(--muted)">벤치프레스</span><span style="font-weight:700;color:var(--accent)">e1RM 115~120kg</span></div>
+        <div style="display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:var(--muted)">스쿼트</span><span style="font-weight:700;color:var(--accent)">PR 135kg 재달성</span></div>
+        <div style="display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:var(--muted)">데드리프트</span><span style="font-weight:700;color:var(--red)">180~185kg</span></div>
+        <div style="display:flex;justify-content:space-between;padding:10px 14px;font-size:13px;"><span style="color:var(--muted)">OHP</span><span style="font-weight:700;color:var(--accent)">65~67kg</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE: 기록 ══════════════ -->
+<div class="page" id="page-history">
+  <div class="page-header"><div class="page-header-title">운동 <span>기록</span></div></div>
+  <div id="history-content"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" onclick="showPage('routine',this)">
+    <span class="nav-icon">🏋️</span><span class="nav-label">루틴</span>
+  </button>
+  <button class="nav-btn" onclick="showPage('orm',this)">
+    <span class="nav-icon">⚡</span><span class="nav-label">1RM</span>
+  </button>
+  <button class="nav-btn" onclick="showPage('history',this)">
+    <span class="nav-icon">📋</span><span class="nav-label">기록</span>
+  </button>
+  <button class="nav-btn" onclick="clearAll()">
+    <span class="nav-icon">🗑️</span><span class="nav-label">초기화</span>
+  </button>
+</nav>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="orm-modal" onclick="closeModalOut(event)">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">1RM 수정</div>
+    <div class="modal-sub">실제 세트 기록으로 e1RM을 계산하거나<br>직접 숫자를 입력하세요.</div>
+    <div class="input-row">
+      <div class="input-group"><label>무게 (kg)</label><input type="number" id="calc-w" placeholder="80" inputmode="decimal" oninput="calcE1rm()"></div>
+      <div class="input-group"><label>횟수 (회)</label><input type="number" id="calc-r" placeholder="8" inputmode="numeric" oninput="calcE1rm()"></div>
+    </div>
+    <div class="calc-result">
+      <span class="calc-label">계산된 e1RM (중급자 공식)</span>
+      <span class="calc-val" id="calc-out">— kg</span>
+    </div>
+    <div class="divider-text">또는 직접 입력</div>
+    <div class="modal-direct">
+      <label>1RM 직접 입력 (kg)</label>
+      <input type="number" id="direct-val" placeholder="105" inputmode="decimal">
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-cancel" onclick="closeModal()">취소</button>
+      <button class="btn btn-save" onclick="saveORM()">저장 & 적용</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────
+const DEFAULTS = {bench:105, squat:110, dead:160, ohp:61, row:90};
+const ORM_META = [
+  {key:'bench', label:'벤치프레스', session: o => `권장 ${sw(o,7)}kg × 6~8회`},
+  {key:'squat', label:'스쿼트',    session: o => `권장 ${sw(o,9)}kg × 8~10회 (복귀)`},
+  {key:'dead',  label:'데드리프트',session: o => `${o+5}kg 1RM 갱신 도전`},
+  {key:'ohp',   label:'OHP',       session: o => `권장 ${sw(o,7)}kg × 6~8회`},
+  {key:'row',   label:'바벨 로우', session: o => `권장 ${sw(o,7)}kg × 6~8회`},
+];
+
+function loadORM(){ try{const s=localStorage.getItem('pb_orm2');return s?JSON.parse(s):{...DEFAULTS};}catch(e){return{...DEFAULTS};} }
+function saveORMStore(d){ localStorage.setItem('pb_orm2',JSON.stringify(d)); }
+function loadLogs(){ try{const s=localStorage.getItem('pb_logs2');return s?JSON.parse(s):[];}catch(e){return[];} }
+function saveLogs(l){ localStorage.setItem('pb_logs2',JSON.stringify(l)); }
+
+let orm = loadORM();
+let modalKey = null;
+let currentDay = 0;
+
+// session weight: 1RM → target reps (중급자 공식 역산), 2.5kg 단위
+function sw(o1rm, reps){ return Math.round(o1rm / (1 + reps*0.021) / 2.5)*2.5; }
+function pct(o1rm, p){ return Math.round(o1rm*p/2.5)*2.5; }
+
+// ── UPDATE UI ─────────────────────────────────
+function updateUI(){
+  // bench
+  const b = sw(orm.bench,7);
+  setDyn('dyn-bench-kg', b);
+  setDyn('dyn-bench-str', b+'kg × 6~8회');
+  // ohp
+  const o = sw(orm.ohp,7);
+  setDyn('dyn-ohp-kg', o);
+  setDyn('dyn-ohp-str', o+'kg × 6~8회');
+  const o30 = pct(orm.ohp,0.3);
+  setDyn('dyn-ohp-30', o30);
+  setDyn('dyn-ohp-30b', o30);
+  // row
+  const r = sw(orm.row,7);
+  setDyn('dyn-row-kg', r);
+  setDyn('dyn-row-str', r+'kg × 6~8회');
+  // squat (복귀 단계 — 9RM 기준)
+  const sq = sw(orm.squat,9);
+  setDyn('dyn-squat-kg', sq);
+  setDyn('dyn-squat-str', sq+'kg × 8~10회');
+  // dead
+  const d = orm.dead+5;
+  setDyn('dyn-dead-kg', d+'~');
+  setDyn('dyn-dead-1rm', d+'kg~');
+  const dr = pct(orm.dead,0.85);
+  setDyn('dyn-dead-rep-kg', dr);
+  setDyn('dyn-dead-rep', dr+'kg × 5~6회');
+}
+
+function setDyn(cls, val){
+  document.querySelectorAll('.'+cls).forEach(el=>el.textContent=val);
+}
+
+// ── ORM PAGE ──────────────────────────────────
+function renderORMList(){
+  document.getElementById('orm-list').innerHTML = ORM_META.map(m=>`
+    <div class="orm-row-card" onclick="openModal('${m.key}')">
+      <div>
+        <div class="orm-row-name">${m.label}</div>
+        <div class="orm-row-session">${m.session(orm[m.key])}</div>
+      </div>
+      <div>
+        <div class="orm-big-val" id="ov-${m.key}">${orm[m.key]}</div>
+        <div class="orm-big-sub">kg · 탭해서 수정</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── MODAL ─────────────────────────────────────
+function openModal(key){
+  modalKey=key;
+  const m=ORM_META.find(x=>x.key===key);
+  document.getElementById('modal-title').textContent=m.label+' 1RM 수정';
+  document.getElementById('calc-w').value='';
+  document.getElementById('calc-r').value='';
+  document.getElementById('calc-out').textContent='— kg';
+  document.getElementById('direct-val').value=orm[key];
+  document.getElementById('orm-modal').classList.add('open');
+}
+function closeModal(){ document.getElementById('orm-modal').classList.remove('open'); }
+function closeModalOut(e){ if(e.target===document.getElementById('orm-modal')) closeModal(); }
+
+function calcE1rm(){
+  const w=parseFloat(document.getElementById('calc-w').value);
+  const r=parseInt(document.getElementById('calc-r').value);
+  if(w>0&&r>0&&r<=10){
+    const v=Math.round(w*(1+r*0.021)*2)/2;
+    document.getElementById('calc-out').textContent=v+' kg';
+    document.getElementById('direct-val').value=v;
+  } else { document.getElementById('calc-out').textContent='— kg'; }
+}
+
+function saveORM(){
+  const v=parseFloat(document.getElementById('direct-val').value);
+  if(!v||v<=0){alert('값을 입력해주세요.');return;}
+  orm[modalKey]=v;
+  saveORMStore(orm);
+  updateUI();
+  renderORMList();
+  closeModal();
+}
+
+// ── LOG SETS ──────────────────────────────────
+const SET_COUNTS = {
+  'bench-str':2,'bench-db':3,'bench-mach':2,'bench-fly':3,'tri-ext':3,'tri-pd':3,
+  'row-str':2,'lat-bb':4,'row-1arm':2,'pullover-bb':2,'rear-delt':3,'bi-curl':3,'hammer':3,
+  'ohp-str':2,'ohp-bb':2,'db-press':2,'lateral':4,'mach-press':1,'shrug':3,
+  'squat-str':2,'dead-1rm':1,'dead-rep':1,
+  'leg-ext':3,'legpress':3,'box-squat':2,'wall-sit':2,
+  'leg-curl':3,'hip-thrust':3,'back-ext':3,
+};
+
+function initSets(){
+  document.querySelectorAll('[data-exid]').forEach(item=>{
+    const id=item.dataset.exid;
+    const cont=item.querySelector('.log-sets');
+    if(!cont) return;
+    buildSets(cont,id,SET_COUNTS[id]||2);
+  });
+}
+
+function buildSets(cont,id,n){
+  cont.innerHTML='';
+  for(let i=0;i<n;i++) cont.appendChild(makeSet(id,i));
+  const btn=document.createElement('button');
+  btn.className='log-add-btn';btn.textContent='+';
+  btn.onclick=()=>{ cont.insertBefore(makeSet(id,cont.querySelectorAll('.log-set').length),btn); };
+  cont.appendChild(btn);
+}
+
+function makeSet(id,idx){
+  const wrap=document.createElement('div');wrap.className='log-set';
+  const lbl=document.createElement('div');lbl.className='set-label';lbl.textContent='SET'+(idx+1);
+  const row=document.createElement('div');row.className='set-inputs';
+  const wi=inp('kg',id,idx,'w'); const ri=inp('회',id,idx,'r');
+  row.appendChild(wi);row.appendChild(ri);
+  const units=document.createElement('div');units.className='set-inputs';
+  const u1=document.createElement('div');u1.className='set-unit';u1.textContent='kg';
+  const u2=document.createElement('div');u2.className='set-unit';u2.textContent='회';
+  units.appendChild(u1);units.appendChild(u2);
+  wrap.appendChild(lbl);wrap.appendChild(row);wrap.appendChild(units);
+  return wrap;
+}
+
+function inp(ph,id,idx,field){
+  const el=document.createElement('input');
+  el.className='set-input';el.type='number';
+  el.inputMode=field==='w'?'decimal':'numeric';
+  el.placeholder=ph;el.dataset.field=field;
+  el.addEventListener('input',()=>el.value?el.classList.add('filled'):el.classList.remove('filled'));
+  return el;
+}
+
+// ── COMPLETE ─────────────────────────────────
+const DAY_NAMES=['월 (가슴/삼두)','화 (등/이두)','목 (어깨/승모)','금 (하체/후면사슬)'];
+const EX_NAMES={
+  'bench-str':'플랫 벤치프레스','bench-db':'인클라인 덤벨 프레스','bench-mach':'머신 프레스','bench-fly':'케이블 플라이',
+  'tri-ext':'오버헤드 익스텐션','tri-pd':'케이블 푸쉬다운',
+  'row-str':'바벨 로우','lat-bb':'랫풀다운','row-1arm':'원암 덤벨 로우','pullover-bb':'덤벨 풀오버','rear-delt':'리버스 펙덱','bi-curl':'덤벨 컬','hammer':'케이블 해머컬',
+  'ohp-str':'바벨 OHP','ohp-bb':'OHP (BB)','db-press':'덤벨 숄더프레스','lateral':'레터럴 레이즈','mach-press':'머신 숄더프레스','shrug':'덤벨 슈러그',
+  'squat-str':'백스쿼트','dead-1rm':'데드리프트 1RM','dead-rep':'데드리프트 반복',
+  'leg-ext':'레그 익스텐션','legpress':'레그프레스','box-squat':'박스 스쿼트','wall-sit':'월 싯',
+  'leg-curl':'레그컬','hip-thrust':'힙쓰러스트','back-ext':'백 익스텐션',
+};
+
+// ormKey: 이 세트가 갱신할 수 있는 1RM 키 (null이면 갱신 안함)
+function completeSets(btn, exid, ormKey){
+  const item=btn.closest('[data-exid]');
+  const wInputs=[...item.querySelectorAll('[data-field="w"]')];
+  const rInputs=[...item.querySelectorAll('[data-field="r"]')];
+  const sets=[];
+  wInputs.forEach((wi,i)=>{
+    const w=parseFloat(wi.value), r=parseInt(rInputs[i]?.value);
+    if(w>0&&r>0) sets.push({w,r});
+  });
+
+  if(sets.length===0){
+    btn.classList.toggle('done');
+    btn.textContent=btn.classList.contains('done')?'✓ 완료':'세트 완료 기록';
+    return;
+  }
+
+  // save log
+  const logs=loadLogs();
+  const today=new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'});
+  logs.push({ date:today, day:DAY_NAMES[currentDay], exid, name:EX_NAMES[exid]||exid, sets });
+  saveLogs(logs);
+
+  // e1RM auto-update suggestion
+  if(ormKey){
+    const best=sets.reduce((b,s)=>{ const e=s.w*(1+s.r*0.021); return e>b.e?{...s,e}:b; },{e:0});
+    if(best.e>0){
+      const newVal=Math.round(best.e*2)/2;
+      if(newVal>orm[ormKey]){
+        setTimeout(()=>{
+          const label=ORM_META.find(m=>m.key===ormKey)?.label||ormKey;
+          if(confirm(`📈 새 e1RM 계산됨!\n${label}: ${newVal}kg\n(현재: ${orm[ormKey]}kg)\n\n1RM 업데이트할까요?`)){
+            orm[ormKey]=newVal;
+            saveORMStore(orm);
+            updateUI();
+            renderORMList();
+          }
+        },300);
+      }
+    }
+  }
+
+  btn.classList.add('done');
+  btn.textContent='✓ 완료 · 기록됨';
+}
+
+// ── HISTORY ──────────────────────────────────
+function renderHistory(){
+  const logs=loadLogs();
+  const el=document.getElementById('history-content');
+  if(!logs.length){
+    el.innerHTML='<div class="history-empty">아직 기록이 없어요.<br>루틴 탭에서 세트를 완료하면<br>여기에 자동 저장돼요.</div>';
+    return;
+  }
+  const byDate={};
+  [...logs].reverse().forEach(l=>{ if(!byDate[l.date]) byDate[l.date]=[]; byDate[l.date].push(l); });
+  el.innerHTML=Object.entries(byDate).map(([date,entries])=>`
+    <div class="history-day">
+      <div class="history-date">${date} · ${entries[0]?.day||''}</div>
+      <div class="history-card">
+        ${entries.map(e=>`
+          <div class="history-row">
+            <span class="history-ex">${e.name}</span>
+            <span class="history-sets">${e.sets.map(s=>s.w+'×'+s.r+'회').join(' / ')}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── PAGE / DAY NAV ────────────────────────────
+function showPage(name,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='history') renderHistory();
+  window.scrollTo(0,0);
+}
+
+function showDay(idx){
+  currentDay=idx;
+  document.querySelectorAll('.day-content').forEach((el,i)=>el.classList.toggle('active',i===idx));
+  document.querySelectorAll('.day-btn').forEach((el,i)=>el.classList.toggle('active',i===idx));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function clearAll(){
+  if(confirm('모든 기록과 1RM 데이터를 초기화할까요?\n이 작업은 되돌릴 수 없어요.')){
+    localStorage.removeItem('pb_orm2');
+    localStorage.removeItem('pb_logs2');
+    orm={...DEFAULTS};
+    updateUI();renderORMList();renderHistory();
+    alert('초기화 완료!');
+  }
+}
+
+// ── INIT ─────────────────────────────────────
+updateUI();
+renderORMList();
+initSets();
+</script>
+</body>
+</html>
